@@ -1,0 +1,41 @@
+# Pinned to versions actually installed and tested against.
+# Verified via `pip show <package>` / `importlib.metadata.version(...)`.
+litellm==1.89.2
+python-dotenv==1.1.0
+
+# Retrieval/grounding store (app/retrieval/). Embeddings are local-only
+# (sentence-transformers via langchain-huggingface) — no hosted embedding
+# API required.
+langchain-core==1.4.8
+langchain-chroma==1.1.0
+langchain-huggingface==1.2.2
+sentence-transformers==5.6.0
+PyYAML==6.0.3
+
+# LangGraph interview state machine (app/interview/). Human-in-the-loop via
+# interrupt()/Command(resume=...); MemorySaver checkpointer.
+langgraph==1.2.6
+pydantic==2.13.4
+
+# Output-safety guardrails (app/guardrails/) — no-verbatim-leak custom
+# validator wrapping interviewer turns + a feedback-schema re-check.
+guardrails-ai==0.10.2
+
+# FastAPI web integration (app/web/) — REST API behind a browser UI.
+fastapi==0.138.0
+starlette==1.3.1
+python-multipart==0.0.32
+uvicorn==0.49.0
+httpx==0.28.1
+
+# Document-upload extraction (app/retrieval/writer.py, extractor.py) — PDF
+# text extraction for the "generate Q&A from an uploaded document" feature.
+pypdf==6.13.3
+
+# Streaming TTS (app/gateway/tts.py) — Deepgram's real-time speech
+# WebSocket endpoint.
+websockets==15.0.1
+
+# Test/dev only.
+pytest==9.1.1
+pytest-asyncio==1.4.0

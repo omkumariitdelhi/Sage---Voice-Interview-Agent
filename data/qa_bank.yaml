@@ -1,0 +1,219 @@
+# Reference Q&A bank — the single source of truth for interview content.
+#
+# To add or edit a question: edit this file only, then re-run the ingest step
+# (`python -m app.retrieval.ingest`, see README) to refresh the vector store.
+# No application code references question content by id, index, or text —
+# only this file's structure (id/topic/difficulty/question/ideal_answer/key_points).
+#
+# Schema per entry:
+#   id            unique slug, stable across edits (used as the vector-store doc id)
+#   topic         short tag used for retrieval filtering / follow-up framing
+#   difficulty    easy | medium | hard
+#   question      what the interviewer asks verbatim
+#   ideal_answer  the reference answer the LLM grounds on — NEVER spoken to the
+#                 candidate verbatim (enforced by the Phase 5 guardrail)
+#   key_points    bullet points a strong answer should cover; used by the
+#                 interviewer LLM to judge strong/weak/wrong and to target
+#                 follow-ups at the specific gap, without revealing the answer
+
+domain: Software Engineer — Screening Interview
+intro: 'Hi, thanks for joining today. I''m going to ask you a mix of technical and
+  behavioral questions, similar to a real screening interview. Take your time, think
+  out loud if that helps, and just let me know when you''re ready to start.
+
+  '
+closing: 'That''s all the questions I have for you today. Thanks for walking me through
+  your thinking — give me a moment to put together some feedback.
+
+  '
+max_follow_ups_per_question: 2
+questions:
+- id: q01
+  topic: behavioral
+  difficulty: easy
+  question: Tell me about a challenging technical problem you solved recently. Walk
+    me through how you approached it.
+  ideal_answer: A strong answer clarifies the problem and constraints before jumping
+    to a solution, breaks the problem into smaller sub-problems, names at least two
+    approaches considered and the trade-off that decided between them, describes how
+    the solution was validated (tests, metrics, code review), and reflects honestly
+    on what they'd do differently with hindsight.
+  key_points:
+  - Clarified the problem/constraints before designing a solution
+  - Broke the problem into smaller, manageable pieces
+  - Compared at least two possible approaches and explained the trade-off
+  - Validated the solution (tests, metrics, or review) rather than assuming it worked
+  - Reflected on what they'd improve next time
+- id: q02
+  topic: data-structures
+  difficulty: easy
+  question: What's the difference between an array and a linked list, and when would
+    you choose one over the other?
+  ideal_answer: Arrays store elements contiguously, giving O(1) indexed access but
+    O(n) insert/delete in the middle and a fixed or amortized-growth size. Linked
+    lists store elements as nodes with pointers, giving O(1) insert/delete at a known
+    position but O(n) indexed access and extra memory for pointers. Choose arrays
+    for frequent random access or cache-friendly iteration; choose linked lists for
+    frequent insertion/deletion at arbitrary positions or when size is highly variable.
+  key_points:
+  - Arrays give O(1) random access; linked lists give O(n) traversal to a position
+  - Arrays have contiguous memory (cache-friendly); linked lists have pointer overhead
+  - Insertion/deletion is O(n) for arrays (shifting) vs O(1) for linked lists at a
+    known node
+  - Names at least one concrete scenario favoring each structure
+- id: q03
+  topic: complexity-analysis
+  difficulty: medium
+  question: What is Big-O notation, and what's the time complexity of binary search
+    versus linear search? Why the difference?
+  ideal_answer: Big-O describes how an algorithm's running time (or space) grows with
+    input size in the worst case, ignoring constant factors. Linear search is O(n)
+    because it may check every element once. Binary search is O(log n) because it
+    requires a sorted input and halves the remaining search space each comparison,
+    so the number of steps grows logarithmically rather than linearly with n.
+  key_points:
+  - Big-O describes worst-case growth rate with input size, not exact runtime
+  - 'Linear search is O(n): may inspect every element'
+  - 'Binary search is O(log n): halves the search space each step'
+  - States the precondition that binary search requires sorted data
+- id: q04
+  topic: oop
+  difficulty: medium
+  question: Explain the difference between an interface and an abstract class, and
+    when you'd use each.
+  ideal_answer: An abstract class can hold shared state and partially implemented
+    behavior that subclasses inherit and extend, and a class can usually extend only
+    one. An interface declares a contract of methods with no shared state (in most
+    languages), and a class can implement many interfaces. Use an abstract class when
+    subclasses share common implementation and a clear "is-a" hierarchy; use an interface
+    when unrelated classes need to guarantee the same capability ("can-do") without
+    sharing implementation.
+  key_points:
+  - Abstract classes can share implementation/state; interfaces are pure contracts
+    (in most languages)
+  - Single inheritance for abstract classes vs multiple interface implementation
+  - Abstract class fits a true "is-a" hierarchy with shared behavior
+  - Interface fits a "can-do" capability shared across unrelated classes
+- id: q05
+  topic: databases
+  difficulty: medium
+  question: What's the difference between SQL and NoSQL databases, and what factors
+    would make you choose one for a project?
+  ideal_answer: SQL (relational) databases enforce a fixed schema, support strong
+    ACID transactions, and excel at complex multi-table joins and consistency guarantees.
+    NoSQL databases (document, key-value, column, graph) trade some consistency/schema
+    rigidity for horizontal scalability, flexible schemas, and high write throughput.
+    Choose SQL when data is relational and consistency/integrity matters (e.g. financial
+    records); choose NoSQL when scale, flexible/evolving schema, or specific access
+    patterns (e.g. huge key-value lookups) dominate.
+  key_points:
+  - SQL enforces schema and strong ACID consistency; NoSQL trades some of that for
+    flexibility/scale
+  - Mentions at least one NoSQL category (document, key-value, column, graph)
+  - Names a concrete factor driving the choice (consistency needs, scale, schema volatility)
+  - Avoids treating NoSQL as strictly "better" or "newer" — frames it as a trade-off
+- id: q06
+  topic: system-design
+  difficulty: hard
+  question: How would you design a URL shortener service? Walk me through the key
+    components.
+  ideal_answer: 'Core flow: a write API takes a long URL, generates a short, unique
+    code (e.g. base62 of an auto-increment id, or a hash with collision handling),
+    and stores the mapping; a read path looks up the code and issues an HTTP redirect.
+    Key components: an API layer, a datastore optimized for fast key lookups (often
+    with a cache like Redis in front), an id/code generation strategy that avoids
+    collisions at scale, and analytics/expiry handling as a stretch concern. At scale,
+    discuss read-heavy traffic, caching the hot set, and horizontally partitioning
+    the datastore by code.'
+  key_points:
+  - Describes both the write path (shorten) and read path (redirect)
+  - Names a concrete short-code generation strategy and addresses collisions
+  - Identifies the datastore as the lookup-latency-critical component, often with
+    caching
+  - Reasons about scale — read-heavy traffic, caching, or partitioning
+- id: q07
+  topic: concurrency
+  difficulty: hard
+  question: 'What is a race condition, and how can you prevent one in a multi-threaded
+    application?
+
+    '
+  ideal_answer: 'A race condition occurs when the correctness of a program depends
+    on the unpredictable timing or interleaving of concurrent operations on shared
+    state, typically when multiple threads read-modify-write the same data without
+    coordination. Prevention strategies include mutual exclusion (locks/mutexes) around
+    the critical section, using atomic operations for simple counters, preferring
+    immutable or thread-local data to avoid sharing altogether, or using higher-level
+    concurrency-safe structures (e.g. concurrent queues) that already handle synchronization.
+
+    '
+  key_points:
+  - Defines a race condition as unsynchronized concurrent access to shared mutable
+    state
+  - Names at least one concrete prevention mechanism (locks, atomics, immutability,
+    thread-local data)
+  - Mentions the idea of a "critical section" or equivalent
+  - Doesn't confuse a race condition with a deadlock
+- id: q08
+  topic: debugging
+  difficulty: medium
+  question: 'Describe your process for debugging a production issue that you can''t
+    reproduce locally.
+
+    '
+  ideal_answer: 'A strong process starts by gathering evidence before changing anything:
+    logs, error rates, recent deploys/config changes, and affected user/request patterns,
+    to form a hypothesis about what''s different in production. It narrows scope with
+    monitoring/tracing (e.g. correlating the issue with a specific dependency, region,
+    or traffic pattern), considers adding targeted logging or a feature flag to gather
+    more data safely, and validates the fix with the same evidence used to diagnose
+    it before considering the issue closed.
+
+    '
+  key_points:
+  - Starts from evidence (logs, metrics, recent changes) rather than guessing
+  - Forms and tests a specific hypothesis about the production-only difference
+  - Uses tracing/monitoring or targeted instrumentation to narrow scope safely
+  - Validates the fix against the original evidence before closing the issue
+- id: q09
+  topic: testing
+  difficulty: easy
+  question: 'What''s the difference between unit tests and integration tests, and
+    why do you need both?
+
+    '
+  ideal_answer: 'Unit tests exercise a single function/class in isolation, mocking
+    or stubbing its dependencies, and are fast and precise about pinpointing where
+    a bug is. Integration tests exercise multiple components together (e.g. a service
+    plus its real database), catching issues that only appear when pieces interact,
+    such as wiring or contract mismatches. You need both because unit tests alone
+    can pass while the system is still broken end-to-end, and integration tests alone
+    are slower and less precise about root cause.
+
+    '
+  key_points:
+  - Unit tests isolate one unit with mocked dependencies; integration tests exercise
+    real interactions
+  - Unit tests are fast and pinpoint failures; integration tests catch wiring/contract
+    issues
+  - Explains why relying on only one type leaves a gap
+  - Doesn't conflate either with end-to-end/UI testing
+- id: q10
+  topic: version-control
+  difficulty: easy
+  question: Explain what happens when you run `git rebase` versus `git merge`, and
+    when you'd use each.
+  ideal_answer: '`git merge` creates a new merge commit that joins two branch histories
+    together, preserving the exact history of both branches. `git rebase` replays
+    your branch''s commits one by one on top of another branch''s tip, producing a
+    linear history as if you''d branched from the latest point — but it rewrites commit
+    hashes, which is unsafe on shared/public branches. Use merge for integrating shared/public
+    branches (e.g. into main); use rebase to clean up or update a private feature
+    branch before opening a pull request.'
+  key_points:
+  - Merge creates a merge commit preserving both histories; rebase replays commits
+    for a linear history
+  - Notes that rebase rewrites commit hashes and is unsafe on shared/already-pushed
+    branches
+  - Gives a concrete scenario for each (e.g. merge into main vs. clean up a local
+    feature branch)

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Voice Interview Agent</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div class="bg-glow" aria-hidden="true"></div>
+
+  <main class="shell">
+    <header class="hero">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Z" stroke="currentColor" stroke-width="1.6"/>
+            <path d="M5 11a7 7 0 0 0 14 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            <path d="M12 18v3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            <path d="M9 21h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <span class="brand-name">Voice Interview Agent</span>
+      </div>
+      <p class="tagline">A mock interview, driven entirely by your voice.</p>
+      <button id="manage-bank-button" class="btn btn-manage" type="button">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M4 6h16M4 12h16M4 18h10" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+        </svg>
+        Manage questions
+      </button>
+    </header>
+
+    <section class="stage" id="stage">
+      <!-- Left: conversation -->
+      <div class="card transcript-card">
+        <div class="card-header">
+          <h2>Conversation</h2>
+          <div class="progress-wrap" id="progress-wrap" hidden>
+            <div class="progress-track">
+              <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <span class="progress-label" id="progress-label">Getting started…</span>
+          </div>
+        </div>
+
+        <div class="transcript" id="transcript" aria-live="polite">
+          <div class="empty-transcript" id="empty-transcript">
+            <span class="empty-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="30" height="30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Z" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M5 11a7 7 0 0 0 14 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                <path d="M12 18v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                <path d="M9 21h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <p>Press <strong>Start interview</strong> to begin. The interviewer will speak first.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: state + controls -->
+      <div class="card control-card">
+        <div class="state-visual" id="state-visual" data-state="idle">
+          <div class="orb-ring" aria-hidden="true"></div>
+          <div class="orb-ring orb-ring--delay" aria-hidden="true"></div>
+          <button id="mic-button" class="orb" type="button" aria-label="Start interview">
+            <svg class="orb-icon icon-idle" viewBox="0 0 24 24" width="34" height="34" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Z" stroke="currentColor" stroke-width="1.7"/>
+              <path d="M5 11a7 7 0 0 0 14 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+              <path d="M12 18v3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+              <path d="M9 21h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+            </svg>
+            <svg class="orb-icon icon-recording" viewBox="0 0 24 24" width="28" height="28" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="7" y="7" width="10" height="10" rx="2" fill="currentColor"/>
+            </svg>
+            <span class="orb-icon icon-processing spinner" aria-hidden="true"></span>
+            <span class="orb-icon icon-speaking waveform" aria-hidden="true">
+              <span></span><span></span><span></span><span></span><span></span>
+            </span>
+          </button>
+        </div>
+
+        <p class="state-caption" id="state-caption">Ready when you are</p>
+
+        <div class="state-pill" id="state-indicator" data-state="idle">
+          <span class="dot" aria-hidden="true"></span>
+          <span id="state-indicator-text">Idle</span>
+        </div>
+
+        <div class="controls">
+          <button id="start-button" class="btn btn-primary" type="button">Start interview</button>
+          <button id="record-button" class="btn btn-record" type="button" hidden>Start answer</button>
+        </div>
+
+        <p class="hint" id="hint-text">Make sure your microphone is connected.</p>
+
+        <div class="banner banner-error" id="error-banner" role="alert" hidden></div>
+      </div>
+    </section>
+
+    <!-- Feedback report (replaces the stage once done) -->
+    <section class="card feedback-card" id="feedback-section" hidden>
+      <div class="feedback-header">
+        <h2>Interview feedback report</h2>
+        <p class="feedback-sub">Here's how the session went, question by question.</p>
+      </div>
+
+      <div class="feedback-columns">
+        <div class="feedback-column">
+          <h3 class="feedback-col-title">Per-question notes</h3>
+          <div id="per-question-list" class="qa-list"></div>
+        </div>
+
+        <div class="feedback-column feedback-column--summary">
+          <div class="summary-block">
+            <h3 class="feedback-col-title strengths-title">
+              <span class="summary-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="11" height="11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M4 12.5l5 5L20 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span> Strengths
+            </h3>
+            <ul id="strengths-list" class="summary-list summary-list--good"></ul>
+          </div>
+          <div class="summary-block">
+            <h3 class="feedback-col-title improvements-title">
+              <span class="summary-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="11" height="11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 19V5M12 5l-6 6M12 5l6 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span> Areas to improve
+            </h3>
+            <ul id="improvements-list" class="summary-list summary-list--improve"></ul>
+          </div>
+        </div>
+      </div>
+
+      <button id="restart-button" class="btn btn-secondary" type="button">Start a new interview</button>
+    </section>
+
+    <footer class="footer-note">
+      <p>Audio is recorded only while you're answering, and sent securely to the interview backend for transcription.</p>
+    </footer>
+  </main>
+
+  <!-- Q&A bank management overlay -->
+  <div class="bank-overlay" id="bank-overlay" hidden>
+    <div class="bank-panel" role="dialog" aria-modal="true" aria-labelledby="bank-panel-title">
+      <div class="bank-panel-header">
+        <h2 id="bank-panel-title">Manage questions</h2>
+        <button id="bank-close-button" class="icon-button" type="button" aria-label="Close">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="banner banner-error" id="bank-error-banner" role="alert" hidden></div>
+
+      <div class="bank-tabs" role="tablist">
+        <button class="bank-tab active" id="tab-manual" type="button" role="tab" aria-selected="true">Single question</button>
+        <button class="bank-tab" id="tab-upload" type="button" role="tab" aria-selected="false">Upload document</button>
+      </div>
+
+      <!-- ===== Tab 1: manual single-question management ===== -->
+      <section class="bank-tab-panel" id="panel-manual">
+        <div class="bank-section">
+          <h3 class="bank-section-title">Current bank</h3>
+          <div class="qa-bank-list" id="qa-bank-list">
+            <p class="bank-empty-note" id="qa-bank-loading">Loading questions…</p>
+          </div>
+        </div>
+
+        <div class="bank-section">
+          <h3 class="bank-section-title" id="manual-form-title">Add a question</h3>
+          <form id="manual-form" class="bank-form">
+            <input type="hidden" id="manual-form-edit-id" value="" />
+            <div class="form-row">
+              <label for="manual-topic">Topic</label>
+              <input id="manual-topic" type="text" required placeholder="e.g. Operating Systems" />
+            </div>
+            <div class="form-row">
+              <label for="manual-difficulty">Difficulty</label>
+              <select id="manual-difficulty" required>
+                <option value="easy">Easy</option>
+                <option value="medium" selected>Medium</option>
+                <option value="hard">Hard</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label for="manual-question">Question</label>
+              <textarea id="manual-question" required placeholder="The question text the interviewer will ask"></textarea>
+            </div>
+            <div class="form-row">
+              <label for="manual-ideal-answer">Ideal answer</label>
+              <textarea id="manual-ideal-answer" required placeholder="A model answer used for grading"></textarea>
+            </div>
+            <div class="form-row">
+              <label for="manual-key-points">Key points (one per line)</label>
+              <textarea id="manual-key-points" required placeholder="One key point per line&#10;At least one is required"></textarea>
+            </div>
+            <div class="form-actions">
+              <button type="button" id="manual-form-cancel" class="btn btn-secondary-sm" hidden>Cancel edit</button>
+              <button type="submit" id="manual-form-submit" class="btn btn-primary-sm">Add question</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- ===== Tab 2: document upload -> extract -> review -> bulk commit ===== -->
+      <section class="bank-tab-panel" id="panel-upload" hidden>
+        <div class="bank-section">
+          <h3 class="bank-section-title">Generate from a document</h3>
+          <form id="upload-form" class="bank-form">
+            <div class="form-row">
+              <label for="upload-file">Document (.pdf, .md, .txt)</label>
+              <input id="upload-file" type="file" accept=".pdf,.md,.txt" required />
+            </div>
+            <div class="form-row form-row--inline">
+              <label for="upload-count">Number of questions</label>
+              <input id="upload-count" type="number" min="1" max="10" value="5" />
+            </div>
+            <div class="form-actions">
+              <button type="submit" id="upload-submit" class="btn btn-primary-sm">Extract questions</button>
+            </div>
+          </form>
+          <div class="extract-progress" id="extract-progress" hidden>
+            <span class="spinner spinner-sm" aria-hidden="true"></span>
+            <span>Reading the document and generating questions… this can take a few seconds.</span>
+          </div>
+          <p class="bank-truncated-note" id="extract-truncated-note" hidden>
+            Source document was truncated before generation.
+          </p>
+        </div>
+
+        <div class="bank-section bank-section--commit" id="draft-review-section" hidden>
+          <h3 class="bank-section-title">Review drafts</h3>
+          <p class="bank-section-hint">Edit any field, deselect drafts you don't want, then commit the rest to the live question bank.</p>
+          <div class="draft-list" id="draft-list"></div>
+          <div class="commit-cta">
+            <div class="commit-cta-text">
+              <span class="commit-cta-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 3v12m0 0l-4-4m4 4l4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M5 17v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <p class="commit-cta-caption">This writes the selected drafts straight to the live interview question bank — new sessions use them immediately.</p>
+            </div>
+            <div class="form-actions">
+              <button type="button" id="commit-drafts-button" class="btn btn-cta">Commit to question bank</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

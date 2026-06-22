@@ -1,0 +1,40 @@
+# --- Secrets & credentials (NEVER commit) ---
+.env
+.env.*
+!.env.example
+credentials.json
+token.json
+*.key
+
+# --- Intermediates / runtime scratch ---
+.tmp/
+
+# --- Python artifacts ---
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.venv/
+venv/
+
+# --- Node artifacts ---
+node_modules/
+
+# --- Vector store / data artifacts (regenerated from data/qa_bank.yaml) ---
+.chroma/
+*.sqlite3
+
+# --- Cached, regenerable LLM-generated artifacts (e.g. interviewer intro) ---
+.cache/
+
+# --- Audio scratch (recorded mic input / synthesized replies, never commit) ---
+*.wav
+*.mp3
+!demo/**/*.mp3
+
+# --- Eval outputs (regenerated) ---
+evals/experiments/
+*.log
+
+# --- OS / editor ---
+.DS_Store
