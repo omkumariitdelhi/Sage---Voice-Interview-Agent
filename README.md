@@ -33,7 +33,7 @@ stateful LLM-driven interview loop that won't leak its own answer key, real
 streamed speech out, and a system that degrades gracefully instead of
 crashing when a provider hiccups.
 
-> 📺 **Demo video:** _add your recording link here before sharing_
+> 📺 **Demo video:** [Watch on Google Drive](https://drive.google.com/file/d/1uc7F7B26pBuBcv8K9RFAJvfZvT3Uux_O/view?usp=sharing)
 
 ## Architecture
 
